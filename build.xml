@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="buildwar" default="deploy" basedir=".">
+    <description> Compile, Package and Deploy testapplication</description>
+    <!-- set global properties for this build -->
+    <property name="src" location="./src" />
+    <property name="classes" location="./build/classes" />
+    <property name="deployDest" location="D:\Softwares\apache-tomcat-7.0.69\webapps" />
+
+    <path id="project-classpath">
+        <!-- Libraries inside server lib folder like, Servlet, JSP -->
+        <fileset dir="D:\Softwares\apache-tomcat-7.0.69\lib" includes="*.jar" />
+    </path>
+
+    <target name="clean">
+        <echo> Cleaned old class files !</echo>
+        <delete>
+            <fileset dir="./build">
+                <include name="*.war" />
+            </fileset>
+        </delete>
+        <echo> Cleaned old war file in build folder !</echo>
+    </target>
+
+    <target name="cleanDeploy">
+        <delete>
+            <fileset dir="${deployDest}">
+                <include name="*.war" />
+                <exclude name="*/*.*" />
+            </fileset>
+        </delete>
+        <echo> Removed war files inside Server!</echo>
+        <delete dir="${deployDest}/testapplication">
+        </delete>
+        <echo> Removed Previous Deployment inside Server!</echo>
+    </target>
+    <target name="compile" depends="clean" description="compile the source ">
+        <javac includeantruntime="true" srcdir="${src}" destdir="${classes}" classpathref="project-classpath" />
+        <echo> Java file compiled and copied to classes folder !</echo>
+    </target>
+    <target name="buildwar" description="Building War File" depends="compile">
+        <war destfile="./build/testapplication.war" webxml="./WebContent/WEB-INF/web.xml">
+            <fileset dir="./WebContent">
+                <include name="**/*.jsp" />
+                <include name="*/*.xml" />
+                <include name="**/*.jar" />
+            </fileset>
+            <classes dir="./build/classes" />
+        </war>
+    </target>
+    <target name="deploy" depends="buildwar,cleanDeploy">
+        <copy file="./build/testapplication.war" todir="${deployDest}" overwrite="true">
+        </copy>
+    </target>
+
+</project>
